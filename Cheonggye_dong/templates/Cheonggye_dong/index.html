@@ -11,7 +11,7 @@
                 url:'busstation',
                 dataType: 'json',
                 success:function(data){
-                    console.log("버스정거장불러오기성공 "+data);
+                    console.log("버스정거장불러오기성공");
                     for (i in data){
                         document.getElementById("busstations").innerHTML+=`${i}${data[i]['정류장 명칭']}${data[i]['위도']}${data[i]['경도']}<br>`
                     }
@@ -62,7 +62,27 @@ var rectangle = new kakao.maps.Rectangle({
 // 지도에 사각형을 표시합니다
 rectangle.setMap(map);
 
+
+var polyline = new kakao.maps.Polyline({
+    map: map,
+    path: [
+        new kakao.maps.LatLng(a, d),
+        new kakao.maps.LatLng(b, c),
+        new kakao.maps.LatLng(33.45178067090639, 126.5726886938753) 
+    ],
+    strokeWeight: 2,
+    strokeColor: '#FF00FF',
+    strokeOpacity: 0.8,
+    strokeStyle: 'dashed'
+});
+
+polyline.setMap(map); 
 </script>
+
+
+
+
+
 <div id="busstations">
 
 </div>

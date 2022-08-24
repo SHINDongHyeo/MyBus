@@ -10,8 +10,7 @@ def index(request):
 
 def busstation(request):
     result = bs.get_stations()
-    print("------------------------------------------------")
-    print(result)
+    print("view 출력------------------------------------------------")
     context = { "busstations":result }
     return HttpResponse(result)
     # return render(request, 'Cheonggye_dong/index.html', context)
