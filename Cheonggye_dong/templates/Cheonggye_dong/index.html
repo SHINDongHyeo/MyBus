@@ -10,6 +10,12 @@
                 type:'GET',
                 url:'busstation',
                 dataType: 'json',
+                data: {
+                    "la1":37.193714,
+                    "la2":37.205152,
+                    "lo1":127.116086,
+                    "lo2":127.095103
+                },
                 success:function(data){
                     console.log("버스정거장불러오기성공");
                     for (i in data){
@@ -22,6 +28,7 @@
             });
         }    
         show_stations()
+
     </script>
 </head>
 
@@ -70,15 +77,14 @@ var polyline = new kakao.maps.Polyline({
         new kakao.maps.LatLng(b, c),
         new kakao.maps.LatLng(33.45178067090639, 126.5726886938753) 
     ],
-    strokeWeight: 2,
+    strokeWeight: 15,
     strokeColor: '#FF00FF',
-    strokeOpacity: 0.8,
-    strokeStyle: 'dashed'
+    strokeOpacity: 0.5,
+    strokeStyle: 'solid'
 });
 
 polyline.setMap(map); 
 </script>
-
 
 
 

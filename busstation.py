@@ -13,7 +13,7 @@ import os
 import django
 from Cheonggye_dong.models import Bus
 
-def get_stations():
+def get_stations(la1,la2,lo1,lo2):
     ############################### 장고 모델로 데이터 저장하기 위한 셋팅 ##################################
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', "MyBus.settings")
     django.setup()
@@ -21,12 +21,14 @@ def get_stations():
     ################################ csv파일에서 해당 사각형 범위에 있는 버스정류장 정보 가져오기 ########################
     df = pd.read_csv("전국버스정류장 위치정보.csv",encoding="ANSI")
     df = df[df["도시명"]=="화성시"]
-    lati_l = 37.193714 # 정류장 찾을 사각형 꼭짓점 정보
-    lati_r = 37.205152 # 정류장 찾을 사각형 꼭짓점 정보
-    long_u = 127.116086 # 정류장 찾을 사각형 꼭짓점 정보
-    long_d = 127.095103 # 정류장 찾을 사각형 꼭짓점 정보
+    lati_l = float(la1) #37.193714 # 정류장 찾을 사각형 꼭짓점 정보
+    lati_r = float(la2) #37.205152 # 정류장 찾을 사각형 꼭짓점 정보
+    long_u = float(lo1) #127.116086 # 정류장 찾을 사각형 꼭짓점 정보
+    long_d = float(lo2) #127.095103 # 정류장 찾을 사각형 꼭짓점 정보
+    print(la1)
+    print(type(la1))
     df = df[(df["위도"]>=lati_l) & (df["위도"]<=lati_r) & (df["경도"]>=long_d) & (df["경도"]<=long_u)]
-    # df = df.to_json(orient="records")
+    df = df.to_json(orient="records")
 
     ############################### 해당 버스정류장을 거치는 버스 정보 크롤링하기 ##############################
     options = webdriver.ChromeOptions()
@@ -36,7 +38,8 @@ def get_stations():
     wait = WebDriverWait(dr, 7)
     dr.maximize_window()
     dr.get('https://www.gbis.go.kr/gbis2014/schBus.action?mapTabCd=1') 
-    stations = df["단축아이디"]
+    stations = df["단축아이디"] # 네코 칸 안에 있는 정류장 고유번호를 담은 리스트
+    len(stations) ############################################################################################  !!!! 네모 칸 안에 있는 정류장 갯수 !!!!!!!
 
     for station in stations:
         print("정류장번호",station,"---------------------------")
@@ -52,11 +55,11 @@ def get_stations():
                 station_results = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".station.active")))
                 station_results.click()
                 print("3번")
-                time.sleep(1)
+                time.sleep(0.5)
                 station_result = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "a#list_station_0")))
                 station_result.click()
                 print("4번")
-                time.sleep(1)
+                time.sleep(0.5)
                 wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.station_bus_list > ul > li > div > a")))
                 print("5번")
                 # time.sleep(3)
@@ -77,7 +80,6 @@ def get_stations():
             except Exception as e:
                 print(e)
                 print("-------------------오류-------------------")
-        
     print("--------------------------------성공--------------------------------------------")
-
     return df
+
