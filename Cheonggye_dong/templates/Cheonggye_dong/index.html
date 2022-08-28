@@ -10,25 +10,26 @@
     <script>
         function show_stations(loc){
             console.log("비동기실행")
-            console.log(loc)
             console.log(arguments)
-            // $.ajax({
-            //     type:'GET',
-            //     url:'busstation',
-            //     dataType: 'json',
-            //     data: {
-            //         "loc":loc
-            //     },
-            //     success:function(data){
-            //         console.log("버스정거장불러오기성공");
-            //         console.log(data)
-            //         document.getElementById("busstations").innerHTML=""
-            //         document.getElementById("busstations").innerHTML=`정류장개수 : ${data.station_result}<br>버스개수 : ${data.bus_result}`
-            //     },
-            //     error : function(xhr,errmsg,err) {
-            //         console.log("버스정거장불러오기실패 : "+xhr.status + ": " + xhr.responseText); 
-            //     }
-            // });
+            result = Array.from(arguments).filter(function (a, b) { return a - b; })
+            console.log(result)
+            $.ajax({
+                type:'GET',
+                url:'busstation',
+                dataType: 'json',
+                data: {
+                    "loc":result
+                },
+                success:function(data){
+                    console.log("버스정거장불러오기성공");
+                    console.log(data)
+                    document.getElementById("busstations").innerHTML=""
+                    document.getElementById("busstations").innerHTML=`정류장개수 : ${data.station_result}<br>버스개수 : ${data.bus_result}`
+                },
+                error : function(xhr,errmsg,err) {
+                    console.log("버스정거장불러오기실패 : "+xhr.status + ": " + xhr.responseText); 
+                }
+            });
         }    
     </script>
 </head>
@@ -109,19 +110,22 @@ manager.addListener('drawend', function(data) { // 다각형 그리기 완료 �
     var overlays = manager.getOverlays([kakao.maps.drawing.OverlayType.POLYGON]);
     var polygons = overlays.polygon;
     var new_polygon = polygons.at(-1)
-    console.log(new_polygon)
     var clicked = false
     var id = 0
     cnt+=1
     id = cnt
-    console.log(new_polygon)
     
-    console.log(loc)
-    console.log(typeof(loc))
-    loc2 = loc.toString()
-    console.log(loc2)
-    console.log(typeof(loc2))
-    var descriptions = `<div id="${id}">${loc}<button onclick="show_stations(${loc2})">영역체크하기</button></div>`
+    var send_data = []
+    for (i in loc){
+        var temp = []
+        var x = loc[i].Ma
+        var y = loc[i].La
+        temp.push(x)
+        temp.push(y)
+        send_data.push(temp)
+    }
+    
+    var descriptions = `<div id="${id}">${loc}<button onclick="show_stations(${send_data})">영역체크하기</button></div>`
     document.getElementById("drawing_result").innerHTML += descriptions
     
     kakao.maps.event.addListener(new_polygon, 'mouseover', function(mouseEvent){
