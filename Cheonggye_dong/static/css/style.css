@@ -1,0 +1,14 @@
+@charset "utf-8";
+* {
+    box-sizing: border-box;
+}
+
+.polygons{
+    border: 1px solid black;
+}
+
+#drawing_result{
+    border: 1px solid black;
+    height: 300px;
+    overflow: scroll;
+}

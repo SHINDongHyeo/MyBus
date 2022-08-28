@@ -3,94 +3,166 @@
 <head>
     <meta charset="utf-8">
     <title>원, 선, 사각형, 다각형 표시하기</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function show_stations(){
-            $.ajax({
-                type:'GET',
-                url:'busstation',
-                dataType: 'json',
-                data: {
-                    "la1":37.193714,
-                    "la2":37.205152,
-                    "lo1":127.116086,
-                    "lo2":127.095103
-                },
-                success:function(data){
-                    console.log("버스정거장불러오기성공");
-                    for (i in data){
-                        document.getElementById("busstations").innerHTML+=`${i}${data[i]['정류장 명칭']}${data[i]['위도']}${data[i]['경도']}<br>`
-                    }
-                },
-                error : function(xhr,errmsg,err) {
-                    console.log("버스정거장불러오기실패 : "+xhr.status + ": " + xhr.responseText); 
-                }
-            });
+        function show_stations(loc){
+            console.log("비동기실행")
+            console.log(loc)
+            console.log(arguments)
+            // $.ajax({
+            //     type:'GET',
+            //     url:'busstation',
+            //     dataType: 'json',
+            //     data: {
+            //         "loc":loc
+            //     },
+            //     success:function(data){
+            //         console.log("버스정거장불러오기성공");
+            //         console.log(data)
+            //         document.getElementById("busstations").innerHTML=""
+            //         document.getElementById("busstations").innerHTML=`정류장개수 : ${data.station_result}<br>버스개수 : ${data.bus_result}`
+            //     },
+            //     error : function(xhr,errmsg,err) {
+            //         console.log("버스정거장불러오기실패 : "+xhr.status + ": " + xhr.responseText); 
+            //     }
+            // });
         }    
-        show_stations()
-
     </script>
 </head>
 
+
 <body>
-<div id="map" style="width:100%;height:700px;"></div>    
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey={{appkey}}"></script>
+    <div id="map" style="width:100%;height:350px;"></div>
+    <p>
+        <button onclick="selectOverlay('POLYGON')">다각형</button>
+    </p>
+
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey={{appkey}}&libraries=drawing"></script>
 <script>
 var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
     mapOption = { 
-        center: new kakao.maps.LatLng(37.199500, 127.107500), // 지도의 중심좌표
-        level: 4 // 지도의 확대 레벨
-    };  
+        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+        level: 3 // 지도의 확대 레벨
+    };
 
-var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+// 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+var map = new kakao.maps.Map(mapContainer, mapOption); 
 
-var a = 37.193714
-var b = 37.205152
-var c = 127.095103
-var d = 127.116086
-var sw = new kakao.maps.LatLng(a, c), // 사각형 영역의 남서쪽 좌표
-    ne = new kakao.maps.LatLng(b, d); // 사각형 영역의 북동쪽 좌표
-
-// 사각형을 구성하는 영역정보를 생성합니다
-// 사각형을 생성할 때 영역정보는 LatLngBounds 객체로 넘겨줘야 합니다
-var rectangleBounds = new kakao.maps.LatLngBounds(sw, ne);
-
-// 지도에 표시할 사각형을 생성합니다
-var rectangle = new kakao.maps.Rectangle({
-    bounds: rectangleBounds, // 그려질 사각형의 영역정보입니다
-    strokeWeight: 4, // 선의 두께입니다
-    strokeColor: 'red', // 선의 색깔입니다
-    strokeOpacity: 1, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-    strokeStyle: 'shortdashdot', // 선의 스타일입니다
-    fillColor: 'yellow', // 채우기 색깔입니다
-    fillOpacity: 0.5 // 채우기 불투명도 입니다
-});
-
-// 지도에 사각형을 표시합니다
-rectangle.setMap(map);
-
-
-var polyline = new kakao.maps.Polyline({
-    map: map,
-    path: [
-        new kakao.maps.LatLng(a, d),
-        new kakao.maps.LatLng(b, c),
-        new kakao.maps.LatLng(33.45178067090639, 126.5726886938753) 
+var options = { // Drawing Manager를 생성할 때 사용할 옵션입니다
+    map: map, // Drawing Manager로 그리기 요소를 그릴 map 객체입니다
+    drawingMode: [ // drawing manager로 제공할 그리기 요소 모드입니다
+        kakao.maps.drawing.OverlayType.POLYGON
     ],
-    strokeWeight: 15,
-    strokeColor: '#FF00FF',
-    strokeOpacity: 0.5,
-    strokeStyle: 'solid'
+    // 사용자에게 제공할 그리기 가이드 툴팁입니다
+    // 사용자에게 도형을 그릴때, 드래그할때, 수정할때 가이드 툴팁을 표시하도록 설정합니다
+    guideTooltip: ['draw', 'drag', 'edit'], 
+    polygonOptions: {
+        draggable: false,
+        removable: true,
+        editable: false,
+        strokeColor: '#39f',
+        fillColor: '#39f',
+        fillOpacity: 0.5,
+        hintStrokeStyle: 'dash',
+        hintStrokeOpacity: 0.5
+    }
+};
+
+// 위에 작성한 옵션으로 Drawing Manager를 생성합니다
+var manager = new kakao.maps.drawing.DrawingManager(options);
+
+
+// 다각형에 마우스오버 이벤트가 발생했을 때 변경할 채우기 옵션입니다
+var mouseoverOption = { 
+    fillColor: '#EFFFED', // 채우기 색깔입니다
+    fillOpacity: 0.8 // 채우기 불투명도 입니다        
+};
+
+// 다각형에 마우스아웃 이벤트가 발생했을 때 변경할 채우기 옵션입니다
+var mouseoutOption = {
+    fillColor: '#A2FF99', // 채우기 색깔입니다 
+    fillOpacity: 0.7 // 채우기 불투명도 입니다        
+};
+
+// 다각형에 클릭 이벤트가 발생했을 때 변경할 채우기 옵션입니다
+var clickOption = {
+    fillColor: '#ff0101a1', // 채우기 색깔입니다 
+    fillOpacity: 0.7 // 채우기 불투명도 입니다        
+};
+
+
+// 버튼 클릭 시 호출되는 핸들러 입니다
+function selectOverlay(type) {
+    // 그리기 중이면 그리기를 취소합니다
+    manager.cancel();
+
+    // 클릭한 그리기 요소 타입을 선택합니다
+    manager.select(kakao.maps.drawing.OverlayType[type]);
+}
+var cnt = 0
+manager.addListener('drawend', function(data) { // 다각형 그리기 완료 후 실행될 작업들
+    loc = data.target.getPath().map(coord => coord.toLatLng())
+    var overlays = manager.getOverlays([kakao.maps.drawing.OverlayType.POLYGON]);
+    var polygons = overlays.polygon;
+    var new_polygon = polygons.at(-1)
+    console.log(new_polygon)
+    var clicked = false
+    var id = 0
+    cnt+=1
+    id = cnt
+    console.log(new_polygon)
+    
+    console.log(loc)
+    console.log(typeof(loc))
+    loc2 = loc.toString()
+    console.log(loc2)
+    console.log(typeof(loc2))
+    var descriptions = `<div id="${id}">${loc}<button onclick="show_stations(${loc2})">영역체크하기</button></div>`
+    document.getElementById("drawing_result").innerHTML += descriptions
+    
+    kakao.maps.event.addListener(new_polygon, 'mouseover', function(mouseEvent){
+        if (clicked==false){
+            new_polygon.setOptions(mouseoverOption);
+        }
+    });
+    kakao.maps.event.addListener(new_polygon, 'mouseout', function(mouseEvent) { 
+        if (clicked==false){
+            new_polygon.setOptions(mouseoutOption);
+        }
+    });
+    kakao.maps.event.addListener(new_polygon, 'click', function(mouseEvent) {
+        if (clicked==true){
+            clicked=false
+            new_polygon.setOptions(mouseoverOption);
+            document.getElementById(`${id}`).style.backgroundColor="white";
+        }else{
+            clicked=true
+            new_polygon.setOptions(clickOption);
+            document.getElementById(`${id}`).style.backgroundColor="red";
+        }
+    });
 });
 
-polyline.setMap(map); 
 </script>
 
+<form method="get">
+    위도1 : <input id="v1" type="text" name="v1" placeholder="위도1" value=37.193714><br>
+    위도2 : <input id="v2" type="text" name="v2" placeholder="위도2" value=37.205152><br>
+    경도1 : <input id="v3" type="text" name="v3" placeholder="경도1" value=127.095103><br>
+    경도2 : <input id="v4" type="text" name="v4" placeholder="경도2" value=127.116086><br>
+    <input type="submit" value="지도에 네모 영역 그리기">
+</form>
+
+<button onclick="show_stations()">지도에 표시된 네모 영역 속 버스정류장/버스 개수 불러오기</button>
+
+<div id="drawing_result"></div>
+
+<div id="busstations"></div>
 
 
-
-<div id="busstations">
-
-</div>
 </body>
 </html>
