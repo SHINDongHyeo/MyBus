@@ -13,28 +13,16 @@ def index(request):
     return render(request, 'Cheonggye_dong/index.html', context)
 
 def busstation(request):
-    dicts = request.GET
-    print(dicts)
-    print(type(dicts))
     loc = request.GET.getlist("loc[]")
-    print(loc)
-    print(type(loc))
-    print(loc[0])
-    print(type(loc[0]))
-    print(loc[1])
-    print(type(loc[1]))
-    # result = bs.get_stations(la1,la2,lo1,lo2,loc)
-    # print(result)
-    # print(type(result))
-    # bus_result = result[1]
-    # station_result = result[0]
+    result = bs.get_stations(loc)
+
+    bus_result = result[1]
+    station_result = result[0]
     
     print("view 출력------------------------------------------------")
     context = { 
-        # "bus_result":bus_result,
-        # "station_result":station_result
-        "bus_result":1,
-        "station_result":2
+        "bus_result":bus_result,
+        "station_result":station_result
         }
 
     context2 =  json.dumps(context)

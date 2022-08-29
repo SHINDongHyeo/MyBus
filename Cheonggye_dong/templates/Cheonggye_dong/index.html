@@ -8,11 +8,14 @@
     
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function show_stations(loc){
+        function show_stations(){
             console.log("비동기실행")
-            console.log(arguments)
+            console.log("arguments:",arguments)
+            result_id = arguments[0]
+            console.log("result_id : ",result_id)
+            arguments = Array.prototype.slice.call(arguments, 1);
+            console.log("arguments : ",arguments)
             result = Array.from(arguments).filter(function (a, b) { return a - b; })
-            console.log(result)
             $.ajax({
                 type:'GET',
                 url:'busstation',
@@ -23,8 +26,7 @@
                 success:function(data){
                     console.log("버스정거장불러오기성공");
                     console.log(data)
-                    document.getElementById("busstations").innerHTML=""
-                    document.getElementById("busstations").innerHTML=`정류장개수 : ${data.station_result}<br>버스개수 : ${data.bus_result}`
+                    document.getElementById(`${result_id}`).innerHTML+=`<br>정류장개수 : ${data.station_result}<br>버스개수 : ${data.bus_result}`
                 },
                 error : function(xhr,errmsg,err) {
                     console.log("버스정거장불러오기실패 : "+xhr.status + ": " + xhr.responseText); 
@@ -116,6 +118,7 @@ manager.addListener('drawend', function(data) { // 다각형 그리기 완료 �
     id = cnt
     
     var send_data = []
+    send_data.push(id)
     for (i in loc){
         var temp = []
         var x = loc[i].Ma
@@ -124,6 +127,7 @@ manager.addListener('drawend', function(data) { // 다각형 그리기 완료 �
         temp.push(y)
         send_data.push(temp)
     }
+    
     
     var descriptions = `<div id="${id}">${loc}<button onclick="show_stations(${send_data})">영역체크하기</button></div>`
     document.getElementById("drawing_result").innerHTML += descriptions

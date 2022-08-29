@@ -17,9 +17,16 @@ import pandas as pd
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 
-def get_stations(la1,la2,lo1,lo2,loc):
-    print(loc)
-    print(type(loc))
+def get_stations(loc):
+    #################### 해당 loc정보로 polygon모양(객체) 만들어주기 #########################3
+    loc_result = []
+    
+    for i in range(0,len(loc),2):
+        loc_result.append((float(loc[i]),float(loc[i+1])))
+
+    polygon = Polygon(loc_result)
+ 
+    ########### Model 비우기 ###################################
     old_datas = Bus.objects.all()
     old_datas.delete()
 
@@ -27,22 +34,11 @@ def get_stations(la1,la2,lo1,lo2,loc):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', "MyBus.settings")
     django.setup()
 
-    ################################ csv파일에서 해당 사각형 범위에 있는 버스정류장 정보 가져오기 ########################
+    ################################ csv파일에서 해당 다각형 범위에 있는 버스정류장 정보 가져오기 ########################
     df = pd.read_csv("전국버스정류장 위치정보.csv",encoding="ANSI")
-    print(df)
-    df = df[df["도시명"]=="화성시"]
-    print(df)
-    lati_l = float(la1) #37.193714 # 정류장 찾을 사각형 꼭짓점 정보
-    lati_r = float(la2) #37.205152 # 정류장 찾을 사각형 꼭짓점 정보
-    long_u = float(lo2) #127.116086 # 정류장 찾을 사각형 꼭짓점 정보
-    long_d = float(lo1) #127.095103 # 정류장 찾을 사각형 꼭짓점 정보
-    print(lati_l)
-    print(lati_r)
-    print(long_u)
-    print(long_d)
-    print(type(lati_l))
-    print(df[(df["위도"]>=lati_l) & (df["위도"]<=lati_r) & (df["경도"]>=long_d) & (df["경도"]<=long_u)])
-    df = df[(df["위도"]>=lati_l) & (df["위도"]<=lati_r) & (df["경도"]>=long_d) & (df["경도"]<=long_u)]
+    df = df[df["도시명"]=="화성시"] # 화성시 파일만 추출
+    df = df[df.apply(lambda x: polygon.contains(Point(x['위도'], x['경도'])), axis=1)] # 위에서 만든 polygon객체에 포함되는 데이터만 추출
+    print("걸러진 데이터 확인용___________________________________")
     print(df)
     # df = df.to_json(orient="records")
 
